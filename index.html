@@ -28,7 +28,10 @@ function audioReady(){try{audio=audio||new(window.AudioContext||window.webkitAud
 function note(ctx,frequency,start,duration,shape='sine',volume=.14,endFrequency=null){const o=ctx.createOscillator(),g=ctx.createGain();o.type=shape;o.frequency.setValueAtTime(frequency,start);if(endFrequency)o.frequency.exponentialRampToValueAtTime(endFrequency,start+duration);g.gain.setValueAtTime(.0001,start);g.gain.exponentialRampToValueAtTime(volume,start+.012);g.gain.setValueAtTime(volume*.75,start+Math.min(.07,duration*.4));g.gain.exponentialRampToValueAtTime(.0001,start+duration);o.connect(g);g.connect(ctx.destination);o.start(start);o.stop(start+duration+.01)}
 function effect(name){if(!name)return;if(!muted){const ctx=audioReady();if(ctx){const t=ctx.currentTime+.025;if(name==='reveal'){// bright two-tone answer bell
 note(ctx,784,t,.13,'triangle',.13);note(ctx,1175,t+.105,.32,'sine',.17);note(ctx,1568,t+.11,.25,'sine',.045)}else if(name==='strike'){// classic-style low, raspy wrong-answer horn
-for(const f of [175,181,87.5])note(ctx,f,t,.58,'sawtooth',f===87.5?.06:.09,Math.max(55,f*.83));note(ctx,110,t+.08,.49,'square',.045,74)}else if(name==='score'){// celebratory upward fanfare
+// Crisp, midrange two-note wrong-answer buzzer: no bass growl or pitch slide.
+const bus=ctx.createGain();bus.gain.value=.38;bus.connect(ctx.destination);
+[440,554.37].forEach((freq,i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='square';osc.frequency.setValueAtTime(freq,t);gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(i===0?.16:.11,t+.008);gain.gain.setValueAtTime(i===0?.16:.11,t+.34);gain.gain.linearRampToValueAtTime(0,t+.355);osc.connect(gain);gain.connect(bus);osc.start(t);osc.stop(t+.36)});
+}else if(name==='score'){// celebratory upward fanfare
 [523,659,784,1047].forEach((f,i)=>note(ctx,f,t+i*.115,i===3?.48:.19,'triangle',.14));note(ctx,1047,t+.345,.48,'sine',.08)}else if(name==='next'){// round transition flourish
 [392,494,587,784].forEach((f,i)=>note(ctx,f,t+i*.075,.14,'triangle',.095))}}}
 if(name==='strike'&&!document.querySelector('.bigstrike')){const x=document.createElement('div');x.className='bigstrike';x.textContent='X';document.body.append(x);setTimeout(()=>x.remove(),850)}}
