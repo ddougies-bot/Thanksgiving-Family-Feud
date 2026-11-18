@@ -1,5 +1,9 @@
+const path = require('path');
 const express=require('express');const http=require('http');const {WebSocketServer}=require('ws');const crypto=require('crypto');const path=require('path');
 const app=express();app.use(express.static(path.join(__dirname,'public')));app.get('/health',(req,res)=>res.json({ok:true}));const server=http.createServer(app);const wss=new WebSocketServer({server});const rooms=new Map();
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 function code(){let c;do{c=crypto.randomBytes(4).toString('hex').slice(0,6).toUpperCase()}while(rooms.has(c));return c}
 function fresh(){return {round:0,revealed:[],strikes:0,scores:[0,0],bank:0,phase:'round',fastRevealed:[],sound:null}}
 function send(ws,msg){if(ws.readyState===1)ws.send(JSON.stringify(msg))}
