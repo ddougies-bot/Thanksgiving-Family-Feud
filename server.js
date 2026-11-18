@@ -1,4 +1,3 @@
-const path = require('path');
 const express=require('express');const http=require('http');const {WebSocketServer}=require('ws');const crypto=require('crypto');const path=require('path');
 const app=express();app.use(express.static(path.join(__dirname,'public')));app.get('/health',(req,res)=>res.json({ok:true}));const server=http.createServer(app);const wss=new WebSocketServer({server});const rooms=new Map();
 app.get('/', (req, res) => {
